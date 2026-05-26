@@ -1,5 +1,5 @@
 /**
- * LectorEbook Pro - Lógica de aplicación con exportación jsPDF
+ * LectorEbook Pro - Versión Corregida (TOC Recursivo, Interlineado Mandatorio e Inicial Capitular)
  */
 
 let book = null;
@@ -17,7 +17,8 @@ const el = {
     pageInfo: document.getElementById('page-info'),
     settingsPanel: document.getElementById('settings-panel'),
     toast: document.getElementById('toast'),
-    exportBtn: document.getElementById('export-pdf-btn')
+    exportBtn: document.getElementById('export-pdf-btn'),
+    dropcapToggle: document.getElementById('dropcap-toggle')
 };
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -48,20 +49,16 @@ function initEvents() {
         if(book) renderBook();
     });
 
-    document.getElementById('font-range').addEventListener('input', (e) => {
-        rendition?.themes.fontSize(`${e.target.value}%`);
-    });
-
-    document.getElementById('line-height').addEventListener('change', (e) => {
-        rendition?.themes.default({ 'line-height': e.target.value });
-    });
+    // Escuchadores de tipografía unificados
+    document.getElementById('font-range').addEventListener('input', updateTypography);
+    document.getElementById('line-height').addEventListener('change', updateTypography);
+    el.dropcapToggle.addEventListener('change', updateTypography);
 
     document.getElementById('print-btn').addEventListener('click', () => {
         if (!book) return alert("Carga un libro primero.");
         window.print();
     });
 
-    // Evento del nuevo botón para exportar todo a PDF con jsPDF
     el.exportBtn.addEventListener('click', exportToPDF);
 
     document.addEventListener('keydown', (e) => {
@@ -129,30 +126,99 @@ async function renderBook() {
         updatePageInfo(location);
         savePosition(location.start.cfi);
     });
-}
 
-function setupTOC() {
-    book.loaded.navigation.then(nav => {
-        el.tocList.innerHTML = "";
-        nav.forEach(chapter => {
-            const li = document.createElement('li');
-            const a = document.createElement('a');
-            a.textContent = chapter.label;
-            a.href = "#";
-            a.onclick = (e) => {
-                e.preventDefault();
-                rendition.display(chapter.href);
-                el.tocSidebar.classList.remove('active');
-            };
-            li.appendChild(a);
-            el.tocList.appendChild(li);
-        });
+    // Aplicar las preferencias tipográficas al cambiar de capítulo
+    rendition.on("rendered", () => {
+        updateTypography();
     });
 }
 
 /**
- * Función Principal de Exportación Total usando jsPDF
+ * SOLUCIÓN AL ÍNDICE INCOMPLETO: Recorrido recursivo del árbol de navegación (Navigation Object)
  */
+function setupTOC() {
+    book.loaded.navigation.then(nav => {
+        el.tocList.innerHTML = "";
+        
+        // Función recursiva interna para mapear subniveles de capítulos
+        function walkTOC(navItems, containerElement) {
+            navItems.forEach(chapter => {
+                const li = document.createElement('li');
+                const a = document.createElement('a');
+                
+                a.textContent = chapter.label ? chapter.label.trim() : "Sección sin título";
+                a.href = "#";
+                a.onclick = (e) => {
+                    e.preventDefault();
+                    rendition.display(chapter.href);
+                    el.tocSidebar.classList.remove('active');
+                };
+                
+                li.appendChild(a);
+                containerElement.appendChild(li);
+                
+                // Si este capítulo contiene subcapítulos, iterar recursivamente creando sub-listas
+                if (chapter.subitems && chapter.subitems.length > 0) {
+                    const subUl = document.createElement('ul');
+                    subUl.className = "toc-sublinks";
+                    li.appendChild(subUl);
+                    walkTOC(chapter.subitems, subUl);
+                }
+            });
+        }
+        
+        // Iniciar recorrido desde la raíz del objeto de navegación
+        if (nav && nav.toc) {
+            walkTOC(nav.toc, el.tocList);
+        } else if (nav) {
+            walkTOC(nav, el.tocList);
+        }
+    });
+}
+
+/**
+ * SOLUCIÓN AL INTERLINEADO Y ADICIÓN DE LETRA CAPITULAR
+ */
+function updateTypography() {
+    if (!rendition) return;
+
+    const size = document.getElementById('font-range').value;
+    const lineHeight = document.getElementById('line-height').value;
+    const isDropCapEnabled = el.dropcapToggle.checked;
+
+    // 1. Ajustar Tamaño base
+    rendition.themes.fontSize(`${size}%`);
+
+    // 2. Corregir Interlineado: Forzar override directo en elementos p y body con !important
+    rendition.themes.override("p", `line-height: ${lineHeight} !important; margin-bottom: 1.2em !important;`);
+    rendition.themes.override("body", `line-height: ${lineHeight} !important;`);
+
+    // 3. Control de Letra Capitular Dinámica
+    if (isDropCapEnabled) {
+        // Aplica un estilo elegante de capitular flotante a la primera letra del primer párrafo de la vista actual
+        rendition.themes.override("p:first-of-type::first-letter", `
+            font-size: 3.2em !important;
+            float: left !important;
+            line-height: 0.85 !important;
+            margin-top: 4px !important;
+            margin-right: 8px !important;
+            font-weight: 800 !important;
+            font-family: 'Georgia', serif !important;
+            color: var(--accent, #2563eb) !important;
+        `);
+    } else {
+        // Restaurar estado inicial removiendo la propiedad modificada
+        rendition.themes.override("p:first-of-type::first-letter", `
+            font-size: inherit !important;
+            float: none !important;
+            line-height: inherit !important;
+            margin: 0 !important;
+            font-weight: normal !important;
+            color: inherit !important;
+        `);
+    }
+}
+
 async function exportToPDF() {
     if (!book) return alert("Carga un libro primero antes de exportar.");
     
@@ -170,11 +236,8 @@ async function exportToPDF() {
         const pageWidth = pdf.internal.pageSize.getWidth();
         const maxLineWidth = pageWidth - (margin * 2);
 
-        // Iterar de forma limpia sobre toda la columna vertebral del libro (capítulos)
         for (let i = 0; i < book.spine.length; i++) {
             const item = book.spine.get(i);
-            
-            // Forzar carga del documento en memoria sin alterar el flujo visual actual del lector
             await item.load(book.load.bind(book));
             const chapterDoc = item.document;
             
@@ -183,7 +246,6 @@ async function exportToPDF() {
             const titleText = chapterDoc.querySelector('h1, h2, h3')?.textContent.trim() || `Sección ${i + 1}`;
             const paragraphs = chapterDoc.querySelectorAll('p');
 
-            // Insertar título del capítulo con validación de espacio en página
             pdf.setFont("Helvetica", "bold");
             pdf.setFontSize(18);
             if (yPosition + 40 > pageHeight - margin) {
@@ -193,7 +255,6 @@ async function exportToPDF() {
             pdf.text(titleText, margin, yPosition);
             yPosition += 40;
 
-            // Procesar párrafos secuencialmente
             pdf.setFont("Helvetica", "normal");
             pdf.setFontSize(11);
 
@@ -201,7 +262,6 @@ async function exportToPDF() {
                 const text = p.textContent.trim();
                 if (!text) return;
 
-                // Segmentar texto de manera automática según las dimensiones de página del PDF
                 const splitLines = pdf.splitTextToSize(text, maxLineWidth);
                 
                 splitLines.forEach(line => {
@@ -210,13 +270,13 @@ async function exportToPDF() {
                         yPosition = margin;
                     }
                     pdf.text(line, margin, yPosition);
-                    yPosition += 18; // Alto de línea proporcional
+                    yPosition += 18;
                 });
-                yPosition += 12; // Espacio libre post-párrafo
+                yPosition += 12;
             });
 
-            yPosition += 25; // Separador entre capítulos
-            item.unload(); // Liberar memoria del DOM virtual
+            yPosition += 25;
+            item.unload();
         }
 
         const metadata = await book.loaded.metadata;
@@ -239,6 +299,7 @@ function applyThemeToRendition(theme) {
 }
 
 function updatePageInfo(location) {
+    if(!location || !location.start) return;
     const start = location.start.displayed.page;
     el.pageInfo.textContent = `Sección Pág. ${start}`;
 }
