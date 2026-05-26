@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LectorEbook Pro</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.5/jszip.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/epubjs/dist/epub.min.js"></script>
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <header class="app-header">
+        <div class="brand">
+            <i class="ph-fill ph-book-open-text"></i>
+            <span>LectorEbook</span>
+        </div>
+
+        <nav class="toolbar">
+            <div class="group">
+                <label class="btn-primary">
+                    <i class="ph ph-plus-circle"></i> Cargar EPUB
+                    <input type="file" id="file-input" accept=".epub">
+                </label>
+                <button id="toggle-toc" title="Tabla de contenidos"><i class="ph ph-list"></i></button>
+            </div>
+
+            <div class="divider"></div>
+
+            <div class="group">
+                <button id="prev-btn"><i class="ph ph-caret-left"></i></button>
+                <span id="page-info">0 / 0</span>
+                <button id="next-btn"><i class="ph ph-caret-right"></i></button>
+            </div>
+
+            <div class="divider"></div>
+
+            <div class="group">
+                <select id="theme-select">
+                    <option value="light">Claro</option>
+                    <option value="sepia">Sepia</option>
+                    <option value="dark">Oscuro</option>
+                </select>
+                <button id="toggle-layout" title="Cambiar vista 1/2 páginas"><i class="ph ph-columns"></i></button>
+                <button id="settings-btn" title="Ajustes de texto"><i class="ph ph-text-aa"></i></button>
+                <button id="print-btn" title="Imprimir sección"><i class="ph ph-printer"></i></button>
+            </div>
+        </nav>
+    </header>
+
+    <div class="main-layout">
+        <aside class="sidebar" id="toc-sidebar">
+            <div class="sidebar-header">
+                <h3>Índice</h3>
+                <button id="close-toc"><i class="ph ph-x"></i></button>
+            </div>
+            <ul id="toc-list" class="toc-links"></ul>
+        </aside>
+
+        <main class="viewer-container" id="drop-zone">
+            <div id="viewer-canvas"></div>
+            
+            <div id="drop-overlay" class="overlay-msg">
+                <div class="icon-pulse"><i class="ph ph-cloud-arrow-up"></i></div>
+                <h2>Suelta tu libro aquí</h2>
+                <p>Formatos admitidos: .epub</p>
+            </div>
+
+            <div id="settings-panel" class="floating-panel hidden">
+                <h4>Ajustes de Lectura</h4>
+                <div class="setting-item">
+                    <label>Tamaño letra</label>
+                    <input type="range" id="font-range" min="80" max="150" value="100">
+                </div>
+                <div class="setting-item">
+                    <label>Interlineado</label>
+                    <select id="line-height">
+                        <option value="1.2">Compacto</option>
+                        <option value="1.6" selected>Lectura</option>
+                        <option value="2.2">Amplio</option>
+                    </select>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <div id="toast" class="toast">Progreso guardado</div>
+
+    <script src="script.js"></script>
+</body>
+</html>
