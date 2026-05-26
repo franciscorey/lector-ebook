@@ -27,7 +27,7 @@
                     <i class="ph ph-plus-circle"></i> Cargar EPUB
                     <input type="file" id="file-input" accept=".epub">
                 </label>
-                <button id="toggle-toc" title="Tabla de contenidos"><i class="ph ph-list"></i></button>
+                <button id="toggle-toc" title="Tabla de contenidos"><i class="ph ph-list"></i> Índice</button>
             </div>
 
             <div class="divider"></div>
@@ -57,7 +57,7 @@
     <div class="main-layout">
         <aside class="sidebar" id="toc-sidebar">
             <div class="sidebar-header">
-                <h3>Índice</h3>
+                <h3>Tabla de Contenidos</h3>
                 <button id="close-toc"><i class="ph ph-x"></i></button>
             </div>
             <ul id="toc-list" class="toc-links"></ul>
@@ -76,15 +76,21 @@
                 <h4>Ajustes de Lectura</h4>
                 <div class="setting-item">
                     <label>Tamaño letra</label>
-                    <input type="range" id="font-range" min="80" max="150" value="100">
+                    <input type="range" id="font-range" min="80" max="160" value="100">
                 </div>
                 <div class="setting-item">
                     <label>Interlineado</label>
                     <select id="line-height">
-                        <option value="1.2">Compacto</option>
-                        <option value="1.6" selected>Lectura</option>
-                        <option value="2.2">Amplio</option>
+                        <option value="1.3">Compacto</option>
+                        <option value="1.6" selected>Lectura Ideal</option>
+                        <option value="2.0">Amplio</option>
                     </select>
+                </div>
+                <div class="setting-item checkbox-group">
+                    <label class="switch-label">
+                        <input type="checkbox" id="dropcap-toggle">
+                        <span>Letra inicial capitular</span>
+                    </label>
                 </div>
             </div>
         </main>
