@@ -6,6 +6,7 @@
     <title>LectorEbook Pro</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.5/jszip.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/epubjs/dist/epub.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -47,7 +48,8 @@
                 </select>
                 <button id="toggle-layout" title="Cambiar vista 1/2 páginas"><i class="ph ph-columns"></i></button>
                 <button id="settings-btn" title="Ajustes de texto"><i class="ph ph-text-aa"></i></button>
-                <button id="print-btn" title="Imprimir sección"><i class="ph ph-printer"></i></button>
+                <button id="print-btn" title="Imprimir pantalla actual"><i class="ph ph-printer"></i></button>
+                <button id="export-pdf-btn" class="btn-accent" title="Exportar libro completo a PDF"><i class="ph ph-file-pdf"></i> Exportar</button>
             </div>
         </nav>
     </header>
