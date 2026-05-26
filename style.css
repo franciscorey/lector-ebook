@@ -192,3 +192,34 @@ body.dark #viewer-canvas { background: #1e293b; }
 }
 
 .toast.show { transform: translateX(-50%) translateY(0); }
+
+/* --- ESTILOS DE IMPRESIÓN --- */
+@media print {
+    /* Ocultar elementos de la interfaz */
+    .app-header, 
+    .sidebar, 
+    .floating-panel, 
+    .overlay-msg, 
+    #prev-btn, 
+    #next-btn, 
+    .toast {
+        display: none !important;
+    }
+
+    /* Ajustar el contenedor para que ocupe toda la página */
+    body, .main-layout, .viewer-container {
+        display: block !important;
+        background: white !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        width: 100% !important;
+        height: auto !important;
+    }
+
+    #viewer-canvas {
+        box-shadow: none !important;
+        width: 100% !important;
+        height: auto !important;
+        overflow: visible !important;
+    }
+}
