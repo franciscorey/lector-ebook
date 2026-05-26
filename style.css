@@ -1,15 +1,15 @@
 :root {
-    /* Colores por defecto (Claro) */
     --bg-app: #f8f9fa;
     --bg-header: #ffffff;
     --text-main: #1e293b;
     --accent: #2563eb;
+    --accent-dark: #1d4ed8;
+    --export-color: #dc2626;
     --border: #e2e8f0;
     --sidebar-bg: #ffffff;
     --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
 }
 
-/* Temas */
 body.sepia {
     --bg-app: #f4ecd8;
     --bg-header: #efe6cf;
@@ -39,7 +39,6 @@ body {
     transition: background 0.3s ease;
 }
 
-/* Header & Toolbar */
 .app-header {
     height: 70px;
     background-color: var(--bg-header);
@@ -59,7 +58,6 @@ body {
 .group { display: flex; align-items: center; gap: 8px; }
 .divider { width: 1px; height: 24px; background: var(--border); }
 
-/* Buttons & Inputs */
 button, select, .btn-primary {
     background: transparent;
     border: 1px solid var(--border);
@@ -77,13 +75,22 @@ button, select, .btn-primary {
 
 button:hover { background-color: var(--border); }
 .btn-primary { background: var(--accent); color: white; border: none; }
-.btn-primary:hover { opacity: 0.9; }
+.btn-primary:hover { background: var(--accent-dark); }
+
+.btn-accent {
+    background: transparent;
+    border: 1px solid var(--export-color);
+    color: var(--export-color);
+}
+.btn-accent:hover {
+    background: var(--export-color);
+    color: white;
+}
+
 input[type="file"] { display: none; }
 
-/* Layout Principal */
 .main-layout { display: flex; flex: 1; position: relative; }
 
-/* Sidebar */
 .sidebar {
     width: 320px;
     background: var(--sidebar-bg);
@@ -110,17 +117,9 @@ input[type="file"] { display: none; }
     font-size: 14px;
     margin-bottom: 2px;
 }
-
 .toc-links li a:hover { background: var(--border); }
 
-/* Visor */
-.viewer-container {
-    flex: 1;
-    position: relative;
-    padding: 20px;
-    display: flex;
-    justify-content: center;
-}
+.viewer-container { flex: 1; position: relative; padding: 20px; display: flex; justify-content: center; }
 
 #viewer-canvas {
     width: 100%;
@@ -133,7 +132,6 @@ input[type="file"] { display: none; }
 
 body.dark #viewer-canvas { background: #1e293b; }
 
-/* Overlays & Panels */
 .overlay-msg {
     position: absolute;
     inset: 0;
@@ -145,11 +143,7 @@ body.dark #viewer-canvas { background: #1e293b; }
     z-index: 10;
 }
 
-.icon-pulse {
-    font-size: 5rem;
-    color: var(--accent);
-    animation: pulse 2s infinite;
-}
+.icon-pulse { font-size: 5rem; color: var(--accent); animation: pulse 2s infinite; }
 
 @keyframes pulse {
     0% { transform: scale(1); opacity: 1; }
@@ -171,12 +165,10 @@ body.dark #viewer-canvas { background: #1e293b; }
 }
 
 .hidden { display: none; }
-
 .setting-item { margin-top: 15px; }
 .setting-item label { display: block; font-size: 12px; margin-bottom: 8px; opacity: 0.8; }
 .setting-item input { width: 100%; }
 
-/* Toast */
 .toast {
     position: fixed;
     bottom: 20px;
@@ -190,36 +182,11 @@ body.dark #viewer-canvas { background: #1e293b; }
     transition: transform 0.3s;
     z-index: 1000;
 }
-
 .toast.show { transform: translateX(-50%) translateY(0); }
 
-/* --- ESTILOS DE IMPRESIÓN --- */
+/* Estilos nativos de impresión de contingencia */
 @media print {
-    /* Ocultar elementos de la interfaz */
-    .app-header, 
-    .sidebar, 
-    .floating-panel, 
-    .overlay-msg, 
-    #prev-btn, 
-    #next-btn, 
-    .toast {
-        display: none !important;
-    }
-
-    /* Ajustar el contenedor para que ocupe toda la página */
-    body, .main-layout, .viewer-container {
-        display: block !important;
-        background: white !important;
-        margin: 0 !important;
-        padding: 0 !important;
-        width: 100% !important;
-        height: auto !important;
-    }
-
-    #viewer-canvas {
-        box-shadow: none !important;
-        width: 100% !important;
-        height: auto !important;
-        overflow: visible !important;
-    }
+    .app-header, .sidebar, .floating-panel, .overlay-msg, #prev-btn, #next-btn, .toast { display: none !important; }
+    body, .main-layout, .viewer-container { display: block !important; background: white !important; margin: 0 !important; padding: 0 !important; width: 100% !important; height: auto !important; }
+    #viewer-canvas { box-shadow: none !important; width: 100% !important; height: auto !important; overflow: visible !important; }
 }
